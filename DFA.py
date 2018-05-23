@@ -53,17 +53,38 @@ class DFA:
             return 'd'
         else:
             return word
+
+    #判断是否切分
+    def isSplit(self,a,b):
+        if (a.isalpha() or a.isdigit()) and not (b.isalpha() or b.isdigit()):
+            return True
+        else:
+            return False
+
     #接收输入并运行状态转换机
     def run(self,sentence):
         buff = ''
+        pre = ''
         # num = -1
+        #注释
+        flag = 0
         for a in sentence:
-            if a.__eq__(' ') or a.__eq__('\n'):
+            if (a.__eq__(' ') or a.__eq__('\n') or self.isSplit(pre,a)) and flag==0:
                 while not buff.__eq__(''):
                     num = self.runNFA(buff)
                     buff = buff[num:]
             else:
                 buff += a
+                if buff.__eq__('//'):
+                    #行注释
+                    flag = 1
+                elif buff.__eq__('/*'):
+                    #块注释
+                    flag = 2
+                if flag == 1 and a.__eq__('\n') or flag == 2 and buff[-2:].__eq__('*/'):
+                    flag = 0
+                    buff = ''
+            pre = a
         return self.output
 
     #错误处理
@@ -84,11 +105,12 @@ class DFA:
             dfaWord += word[n]
             tmp = self.router(word[n])
             if not self.stateChangeDic[currentState].has_key(tmp):
-                if self.isStop(currentState):
-                    self.output.append('<' + currentState + ":" + dfaWord[:-1] + ">")
-                    return n
-                else:
-                    self.error(word[n])
+                # if self.isStop(currentState):
+                #     self.output.append('<' + currentState + ":" + dfaWord[:-1] + ">")
+                #     return n
+                # else:
+                #     self.error(word[n])
+                self.error(word)
             else:
                 nextState = self.stateChangeDic[currentState][tmp]
                 if nextState.__eq__('e'):
