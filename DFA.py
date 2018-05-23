@@ -34,6 +34,17 @@ class DFA:
         else:
             return False,Vt
 
+    #关键字识别
+    def identifyKeys(self,keyWords):
+        for i in range(len(self.output)):
+            tmp1 = self.output[i]
+            tmp = self.output[i][1:-1]
+            tmp = tmp.split(":")[0]
+            if tmp[0].__eq__('"') and tmp[-1].__eq__('"'):
+                tmp = tmp[1:-1]
+            if tmp1.split(":")[1][:-1] in keyWords:
+                self.output[i] = '<关键字:'+tmp1.split(":")[1]
+
     #字母数字符号路由
     def router(self,word):
         if word.isalpha():
@@ -81,7 +92,7 @@ class DFA:
             else:
                 nextState = self.stateChangeDic[currentState][tmp]
                 if nextState.__eq__('e'):
-                    self.output.append('<'+currentState+":"+dfaWord+">")
+                    self.output.append('<"'+tmp+'":'+dfaWord+">")
                     return n+1
                 else:
                     preState = currentState
